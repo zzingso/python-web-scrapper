@@ -4,3 +4,4 @@ last_page = extract_indeed_pages()
 
 indeed_jobs = extract_indeed_jobs(last_page)
 
+print(indeed_jobs)
