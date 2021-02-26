@@ -5,7 +5,7 @@ LIMIT = 50
 URL = f"https://kr.indeed.com/%EC%B7%A8%EC%97%85?q=python&limit={LIMIT}"
 
 
-def extract_indeed_pages():
+def extract_pages():
     result = requests.get(URL)
     soup = BeautifulSoup(result.text, "html.parser")
     pagination = soup.find("div", {"class": "pagination"})
@@ -26,15 +26,18 @@ def extract_job(html):
         "class": "sjcl"
     }).find("span", {"class": "company"})
 
-    company_anchor = company.find("a")
+    if company:
+        company_anchor = company.find("a")
 
-    if company_anchor is not None:
-        company = str(company_anchor.string)
+        if company_anchor is not None:
+            company = str(company_anchor.string)
+        else:
+            company = str(company.string)
+
+        company = company.strip()
     else:
-        company = str(company.string)
-
-    company = company.strip()
-
+        company = None
+        
     location = html.find("div", {"class": "recJobLoc"})["data-rc-loc"]
 
     job_id = html["data-jk"]
@@ -51,7 +54,7 @@ def extract_job(html):
     }
 
 
-def extract_indeed_jobs(last_page):
+def extract_jobs(last_page):
     jobs = []
     for page in range(last_page):
         print(f"Scrapping page {page}")
@@ -62,4 +65,10 @@ def extract_indeed_jobs(last_page):
         for result in results:
             job = extract_job(result)
             jobs.append(job)
-    return jobs 
+    return jobs
+
+def get_jobs():
+    last_page = extract_pages()
+    jobs = extract_jobs(last_page)
+
+    return jobs
